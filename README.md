@@ -7,9 +7,14 @@ The aim of the project is support as many community-supported major versions of 
 
 9.6, 10, 11, 12, 13 and master (pre-14).
 
+## Currently supported Unique Identifiers
+
+ - [Instragam's Sharding ID (inspired by SnowFlake)](https://github.com/uuid6/uuid6-ietf-draft/blob/master/research/sortable-id-comparisons.md#name-instagrams-sharding-id-inspired-by-snowflake)
+
+
 ## Installation
 
-```sh
+```bash
 $ git clone https://github.com/fabriziomello/unique_id.git
 $ cd unique_id
 # Make sure your path includes the bin directory that contains the correct `pg_config`
@@ -20,13 +25,13 @@ $ USE_PGXS=1 make install
 
 ## Tests
 
-```sh
+```bash
 $ USE_PGXS=1 make installcheck
 ```
 
 ## Examples
 
-```
+```sql
 fabrizio=# CREATE EXTENSION unique_id;
 CREATE EXTENSION
 fabrizio=# \dx unique_id
