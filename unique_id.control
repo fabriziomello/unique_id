@@ -1,0 +1,5 @@
+# unique_id
+comment = 'Non-Standard Time-based K-sorted, Lexicographically Unique Identifiers'
+default_version = '1.0'
+module_pathname = '$libdir/unique_id'
+relocatable = true

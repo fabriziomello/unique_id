@@ -1,0 +1,44 @@
+\set VERBOSITY terse
+CREATE EXTENSION unique_id;
+-- Throw error because should exists a sequence
+SELECT unique_id_instagram('instagram_seq');
+ERROR:  relation "instagram_seq" does not exist at character 28
+CREATE SEQUENCE instagram_seq;
+-- Individual transactions and default shard_id = 0
+SELECT unique_id_instagram('instagram_seq') > unique_id_instagram('instagram_seq');
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT unique_id_instagram('instagram_seq') < unique_id_instagram('instagram_seq');
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT unique_id_instagram('instagram_seq') <> unique_id_instagram('instagram_seq');
+ ?column? 
+----------
+ t
+(1 row)
+
+-- Individual transactions and shard_id = 1
+SELECT unique_id_instagram('instagram_seq', 1) > unique_id_instagram('instagram_seq', 1);
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT unique_id_instagram('instagram_seq', 1) < unique_id_instagram('instagram_seq', 1);
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT unique_id_instagram('instagram_seq', 1) <> unique_id_instagram('instagram_seq', 1);
+ ?column? 
+----------
+ t
+(1 row)
+
