@@ -5,7 +5,7 @@ PostgreSQL extension that implements [non-Standard Time-based K-sorted, Lexicogr
 
 The aim of the project is support as many community-supported major versions of Postgres as possible. Currently, the following versions of PostgreSQL are supported:
 
-9.6, 10, 11, 12, 13, 14, and master (pre-15).
+9.6, 10, 11, 12, 13 and master (pre-14).
 
 ## Installation
 
