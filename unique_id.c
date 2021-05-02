@@ -62,9 +62,9 @@ Datum
 unique_id_instagram(PG_FUNCTION_ARGS)
 {
     Oid     seqoid = PG_GETARG_OID(0);
-    uint32  shard_id = PG_GETARG_INT32(1);
-    uint64  our_epoch = 1314220021721;
-    uint64  result;
+    int32  shard_id = PG_GETARG_INT32(1);
+    int64  our_epoch = 1314220021721;
+    int64  result;
 
 	result = ( (GetCurrentEpoch() * 1000) - our_epoch) << 23;
 	result = result | (shard_id <<10);
