@@ -36,6 +36,7 @@ int64 snowflake_id(SnowFlakeConfig *config);
 PG_MODULE_MAGIC;
 
 PG_FUNCTION_INFO_V1(unique_id_instagram);
+PG_FUNCTION_INFO_V1(unique_id_sonyflake);
 
 /* extracted from utils/adt/timestamp.c */
 static Datum
@@ -96,6 +97,42 @@ unique_id_instagram(PG_FUNCTION_ARGS)
     pfree(config);
 
     PG_RETURN_INT64(result);
+}
+
+/*
+ *  Sony's Sonyflake (inspired by Flake?)
+ *
+ *  ID Format: timestamp|sequence|machineID
+ *  Lenght: 63 bits
+ *  - Timestamp: 39 bits
+ *  - Sequence: 8 bits
+ *  - Shard id: 16 bits
+ *
+ *  References:
+ *  - https://github.com/uuid6/uuid6-ietf-draft/blob/master/research/sortable-id-comparisons.md#name-sonys-sonyflake-inspired-by-flake
+ *
+ */
+Datum
+unique_id_sonyflake(PG_FUNCTION_ARGS)
+{
+    Oid             seqoid = PG_GETARG_OID(0);
+    int32           shard_id = PG_GETARG_INT32(1);
+    int64           epoch = 1409529600; /* 2014-09-01 00:00:00  */
+    SnowFlakeConfig *config;
+
+    config = (SnowFlakeConfig *) palloc(sizeof(SnowFlakeConfig));
+
+    config->max_size = 63;
+
+    config->bits[0] = 39;
+    config->bits[1] = 8;
+    config->bits[2] = 16;
+
+    config->values[0] = (DatumGetInt64(GetCurrentEpoch()) * 1000) - epoch;
+    config->values[1] = nextval_internal(seqoid, true);
+    config->values[2] = (int64) shard_id;
+
+    PG_RETURN_INT64( snowflake_id(config) );
 }
 
 /*

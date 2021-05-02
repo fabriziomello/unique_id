@@ -1,6 +1,6 @@
 MODULES = unique_id
 
-REGRESS = unique_id_instagram
+REGRESS = unique_id_instagram unique_id_sonyflake
 
 EXTENSION = unique_id
 DATA = unique_id--1.0.sql

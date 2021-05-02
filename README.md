@@ -1,6 +1,8 @@
 # unique_id
 PostgreSQL extension that implements [non-Standard Time-based K-sorted, Lexicographically Unique Identifiers](https://github.com/uuid6/uuid6-ietf-draft/blob/master/research/sortable-id-comparisons.md).
 
+The inspiration to implement this PostgreSQL extension came from this [github gist (PT-BR)](https://gist.github.com/rponte/bf362945a1af948aa04b587f8ff332f8) that explains the differences between the usage of UUID and INT/BIGINT datatypes in RDBMS. This great material was written and is maintained by my friend [Rafael Ponte](https://github.com/rponte).
+
 ## Supported PostgreSQL versions
 
 The aim of the project is support as many community-supported major versions of Postgres as possible. Currently, the following versions of PostgreSQL are supported:
@@ -9,8 +11,8 @@ The aim of the project is support as many community-supported major versions of 
 
 ## Currently supported Unique Identifiers
 
- - [Instragam's Sharding ID (inspired by SnowFlake)](https://github.com/uuid6/uuid6-ietf-draft/blob/master/research/sortable-id-comparisons.md#name-instagrams-sharding-id-inspired-by-snowflake)
-
+- [Instragam's Sharding ID (inspired by SnowFlake)](https://github.com/uuid6/uuid6-ietf-draft/blob/master/research/sortable-id-comparisons.md#name-instagrams-sharding-id-inspired-by-snowflake)
+- [Sony's Sonyflake (inspired by Flake?)](https://github.com/uuid6/uuid6-ietf-draft/blob/master/research/sortable-id-comparisons.md#name-sonys-sonyflake-inspired-by-flake)
 
 ## Installation
 
