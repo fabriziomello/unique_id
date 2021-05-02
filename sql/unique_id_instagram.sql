@@ -16,3 +16,4 @@ SELECT unique_id_instagram('instagram_seq', 1) > unique_id_instagram('instagram_
 SELECT unique_id_instagram('instagram_seq', 1) < unique_id_instagram('instagram_seq', 1);
 SELECT unique_id_instagram('instagram_seq', 1) <> unique_id_instagram('instagram_seq', 1);
 
+DROP EXTENSION unique_id;

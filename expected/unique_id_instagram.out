@@ -42,3 +42,4 @@ SELECT unique_id_instagram('instagram_seq', 1) <> unique_id_instagram('instagram
  t
 (1 row)
 
+DROP EXTENSION unique_id;

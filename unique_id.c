@@ -20,12 +20,25 @@
 #include "commands/sequence.h"
 #include "utils/timestamp.h"
 
+#define SNOWFLAKE_MAX_ELEMENTS  3
+
+/* Generic SnowFlake configuration  */
+typedef struct SnowFlakeConfig
+{
+    int     max_size;
+    int     bits[SNOWFLAKE_MAX_ELEMENTS];
+    int64   values[SNOWFLAKE_MAX_ELEMENTS];
+} SnowFlakeConfig;
+
+/* Generic SnowFlake id generator */
+int64 snowflake_id(SnowFlakeConfig *config);
+
 PG_MODULE_MAGIC;
 
 PG_FUNCTION_INFO_V1(unique_id_instagram);
 
 /* extracted from utils/adt/timestamp.c */
-static int64
+static Datum
 GetCurrentEpoch()
 {
     Timestamp   epoch;
@@ -41,7 +54,7 @@ GetCurrentEpoch()
     else
         result = ((float8) timestamp - epoch) / 1000000.0;
 
-    return (int64) floor(result);
+    return floor(result);
 }
 
 /* 
@@ -61,14 +74,51 @@ GetCurrentEpoch()
 Datum
 unique_id_instagram(PG_FUNCTION_ARGS)
 {
-    Oid     seqoid = PG_GETARG_OID(0);
-    int32  shard_id = PG_GETARG_INT32(1);
-    int64  our_epoch = 1314220021721;
-    int64  result;
+    Oid             seqoid = PG_GETARG_OID(0);
+    int32           shard_id = PG_GETARG_INT32(1);
+    int64           epoch = 1314220021721;
+    int64           result;
+    SnowFlakeConfig *config;
 
-	result = ( (GetCurrentEpoch() * 1000) - our_epoch) << 23;
-	result = result | (shard_id <<10);
-    result = result | (nextval_internal(seqoid, true));
+    config = (SnowFlakeConfig *) palloc(sizeof(SnowFlakeConfig));
+
+    config->max_size = 64;
+
+    config->bits[0] = 41;
+    config->bits[1] = 13;
+    config->bits[2] = 10;
+
+    config->values[0] = (DatumGetInt64(GetCurrentEpoch()) * 1000) - epoch;
+    config->values[1] = (int64) shard_id;
+    config->values[2] = nextval_internal(seqoid, true);
+
+    result = snowflake_id(config);
+    pfree(config);
 
     PG_RETURN_INT64(result);
+}
+
+/*
+ * Generic implementation of SnowFlake int64 generation ID.
+ */
+int64
+snowflake_id(SnowFlakeConfig *config)
+{
+    int     i;
+    int     bits = 0;
+    int64   result = 0;
+
+    if (config->max_size > 64)
+        elog(ERROR, "Maximum allowed size for SnowFlake is 64 bits");
+
+    for (i = 0; i < SNOWFLAKE_MAX_ELEMENTS; i++)
+    {
+        bits += config->bits[i];
+        result = result | (config->values[i] << (config->max_size - bits));
+    }
+
+    if (bits != config->max_size)
+        elog(ERROR, "Expected %d bits but configured %d", config->max_size, bits);
+
+    return result;
 }
