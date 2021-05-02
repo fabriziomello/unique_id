@@ -17,17 +17,12 @@ jobs:
           - REL_10_STABLE
 
     steps:
-      - name: Install build dependencies
+      - name: Install PostgreSQL build dependencies
         run: |
           sudo apt-get update -y
           sudo apt-get install -y build-essential bison flex zlib1g-dev libreadline-dev
 
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-
-      - name: Checkout postgres repository
+      - name: Checkout PostgreSQL repository
         uses: actions/checkout@v2
         with:
           repository: postgres/postgres
@@ -51,7 +46,12 @@ jobs:
           /tmp/pgsql/bin/initdb -D /tmp/data -A trust
           /tmp/pgsql/bin/pg_ctl -D /tmp/data -l /tmp/data/postgresql.log start
 
-      - name: Run extension regression tests
+      - name: Checkout unique_id extension repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Run unique_id extension regression tests
         run: |
           make PG_CONFIG=/tmp/pgsql/bin/pg_config USE_PGXS=1 install
           make PG_CONFIG=/tmp/pgsql/bin/pg_config USE_PGXS=1 installcheck
