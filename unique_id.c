@@ -21,7 +21,8 @@
 #include "utils/timestamp.h"
 
 #define SNOWFLAKE_MAX_ELEMENTS  3
-#define SNOWFLAKE_EPOCH         1314220021721
+#define INSTAGRAM_EPOCH         1314220021721
+#define SONYFLAKE_EPOCH         1409529600; /* 2014-09-01 00:00:00 */
 
 /* Generic SnowFlake configuration  */
 typedef struct SnowFlakeConfig
@@ -29,6 +30,7 @@ typedef struct SnowFlakeConfig
     int     max_size;
     int     bits[SNOWFLAKE_MAX_ELEMENTS];
     int64   values[SNOWFLAKE_MAX_ELEMENTS];
+    int64   epoch;
 } SnowFlakeConfig;
 
 /* Generic SnowFlake id generator */
@@ -77,20 +79,20 @@ Datum
 unique_id_instagram(PG_FUNCTION_ARGS)
 {
     Oid             seqoid = PG_GETARG_OID(0);
-    int32           shard_id = PG_GETARG_INT32(1);
-    int64           epoch = SNOWFLAKE_EPOCH;
+    int32           shard_id = PG_ARGISNULL(1)?0:PG_GETARG_INT32(1);
     int64           result;
     SnowFlakeConfig *config;
 
     config = (SnowFlakeConfig *) palloc(sizeof(SnowFlakeConfig));
 
     config->max_size = 64;
+    config->epoch = INSTAGRAM_EPOCH;
 
     config->bits[0] = 41;
     config->bits[1] = 13;
     config->bits[2] = 10;
 
-    config->values[0] = (DatumGetInt64(GetCurrentEpoch()) * 1000) - epoch;
+    config->values[0] = (DatumGetInt64(GetCurrentEpoch()) * 1000) - config->epoch;
     config->values[1] = (int64) shard_id;
     config->values[2] = nextval_internal(seqoid, true);
 
@@ -117,23 +119,27 @@ Datum
 unique_id_sonyflake(PG_FUNCTION_ARGS)
 {
     Oid             seqoid = PG_GETARG_OID(0);
-    int32           shard_id = PG_GETARG_INT32(1);
-    int64           epoch = 1409529600; /* 2014-09-01 00:00:00  */
+    int32           shard_id = PG_ARGISNULL(1)?0:PG_GETARG_INT32(1);
+    int64           result;
     SnowFlakeConfig *config;
 
     config = (SnowFlakeConfig *) palloc(sizeof(SnowFlakeConfig));
 
     config->max_size = 63;
+    config->epoch = SONYFLAKE_EPOCH;
 
     config->bits[0] = 39;
     config->bits[1] = 8;
     config->bits[2] = 16;
 
-    config->values[0] = (DatumGetInt64(GetCurrentEpoch()) * 1000) - epoch;
+    config->values[0] = (DatumGetInt64(GetCurrentEpoch()) * 1000) - config->epoch;
     config->values[1] = nextval_internal(seqoid, true);
     config->values[2] = (int64) shard_id;
 
-    PG_RETURN_INT64( snowflake_id(config) );
+    result = snowflake_id(config);
+    pfree(config);
+
+    PG_RETURN_INT64(result);
 }
 
 /*
