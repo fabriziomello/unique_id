@@ -21,6 +21,7 @@
 #include "utils/timestamp.h"
 
 #define SNOWFLAKE_MAX_ELEMENTS  3
+#define SNOWFLAKE_EPOCH         1314220021721
 
 /* Generic SnowFlake configuration  */
 typedef struct SnowFlakeConfig
@@ -77,7 +78,7 @@ unique_id_instagram(PG_FUNCTION_ARGS)
 {
     Oid             seqoid = PG_GETARG_OID(0);
     int32           shard_id = PG_GETARG_INT32(1);
-    int64           epoch = 1314220021721;
+    int64           epoch = SNOWFLAKE_EPOCH;
     int64           result;
     SnowFlakeConfig *config;
 
